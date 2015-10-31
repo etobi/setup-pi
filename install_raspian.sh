@@ -3,6 +3,10 @@
 ################################################################
 
 do_download_image() {
+	if (test ! -d "./tmp"); dthen
+		mkdir ./tmp
+	fi
+	
 	read -n 1 -p "Download latest raspbian? [Y/n] " YESNO
 	echo
 	if (test "$YESNO" = "" -o "$YESNO" = "y"  -o "$YESNO" = "Y"); then
@@ -18,12 +22,15 @@ do_download_image() {
 			exit 1;
 		fi
 	fi
+
 	SOURCE=`ls -t1 tmp/*.img | head -1`
 	echo "Image found: $SOURCE"
+
 	if (test "$SOURCE" = "" -o ! -f "./$SOURCE"); then
 		echo No image found.
 		exit 1;
 	fi
+
 	ls -lh $SOURCE
 }
 
