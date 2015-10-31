@@ -90,7 +90,7 @@ do_dump() {
 	diskutil unmountDisk $TARGET
 	
 	echo "dd... (press CTRL+T for status)"
-	sudo bash -c "pv -tpreb $SOURCE | dd bs=1m of=$TARGET"
+	sudo bash -c "pv -tpreb $SOURCE | dd bs=1m of=$RAWTARGET"
 }
 
 
