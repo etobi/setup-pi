@@ -91,6 +91,8 @@ do_dump() {
 	
 	echo "dd... (press CTRL+T for status)"
 	sudo bash -c "pv -tpreb $SOURCE | dd bs=1m of=$RAWTARGET"
+	
+	diskutil eject $SOURCE
 }
 
 
