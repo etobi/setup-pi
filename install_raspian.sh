@@ -92,7 +92,7 @@ do_dump() {
 	echo "dd..."
 	sudo bash -c "pv -tpreb $SOURCE | dd bs=1m of=$RAWTARGET"
 	
-	diskutil eject $SOURCE
+	diskutil eject $TARGET
 }
 
 
