@@ -104,11 +104,21 @@ sudo bash -c "echo '
 #   netmask 255.255.255.0
 #   gateway 192.168.50.1
 ' >> /etc/network/interfaces"
-vi /etc/network/interfaces
+sudo vi /etc/network/interfaces
 
 echo ==================================================================
-echo setup network interfaces
-# TODO configure sSMTP
+echo setup ssmtp
+sudo apt-get -y install ssmtp
+sudo bash -c 'echo "
+root=mail_root-pi@etobi.de
+hostname=etobi.de
+AuthUser=xxxxxx
+AuthPass=XXXXXX
+FromLineOverride=YES
+mailhub=wolke.etobi.de:587
+UseSTARTTLS=YES
+" > /etc/ssmtp/ssmtp.conf'
+sudo vi /etc/ssmtp/ssmtp.conf
 
 echo ==================================================================
 echo setup network interfaces
@@ -126,7 +136,7 @@ bcm2708_wdog
 " >> /etc/modules'
 sudo apt-get -y install watchdog
 sudo bash -c 'echo "
-max-load-1              = 24
+max-load-1 = 24
 watchdog-device = /dev/watchdog
 " >> /etc/watchdog.conf'
 sudo /etc/init.d/watchdog restart
