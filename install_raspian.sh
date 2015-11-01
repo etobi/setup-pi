@@ -20,8 +20,8 @@ do_download_image() {
 	read -n 1 -p "Download latest raspbian? [Y/n] " YESNO
 	echo
 	if (test "$YESNO" = "" -o "$YESNO" = "y"  -o "$YESNO" = "Y"); then
-#		rm -f tmp/raspbian.zip
-#		wget http://downloads.raspberrypi.org/raspbian_latest -O tmp/raspbian.zip
+		rm -f tmp/raspbian.zip
+		wget http://downloads.raspberrypi.org/raspbian_latest -O tmp/raspbian.zip
 		cd tmp
 		echo unzipping...
 		jar xvf raspbian.zip
