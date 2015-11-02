@@ -55,10 +55,12 @@ sudo bash -c 'cat /dev/zero | ssh-keygen -q -N ""'
 
 echo ==================================================================
 echo setup git author
+git config --global push.default simple
 git config --global user.email mail@etobi.de
 git config --global user.name "Tobias Liebig"
 sudo bash -c 'git config --global user.email mail@etobi.de'
 sudo bash -c 'git config --global user.name "Tobias Liebig"'
+sudo bash -c 'git config --global push.default simple'
 
 echo ==================================================================
 echo update apt
@@ -68,7 +70,7 @@ echo ==================================================================
 echo setup etckeeper
 sudo apt-get -y install etckeeper
 sudo bash -c 'cd /etc && etckeeper init'
-sudo bash -c 'git remote add origin ssh://git@git.etobi.de:2222/etc/`echo $NEW_HOSTNAME`.git'
+sudo bash -c 'cd /etc && git remote add origin ssh://git@git.etobi.de:2222/etc/`echo $NEW_HOSTNAME`_etc.git'
 
 echo ==================================================================
 echo install jre
@@ -99,12 +101,13 @@ echo ==================================================================
 echo setup network interfaces
 sudo bash -c "echo '
 
-# iface eth0 inet static
-#   address 192.168.50.222
-#   netmask 255.255.255.0
-#   gateway 192.168.50.1
+#iface eth0 inet static
+#  address 192.168.50.222
+#  netmask 255.255.255.0
+#  gateway 192.168.50.1
 ' >> /etc/network/interfaces"
 sudo vi /etc/network/interfaces
+sudo bash -c "etckeeper commit 'configure network'"
 
 echo ==================================================================
 echo setup ssmtp
@@ -119,6 +122,7 @@ mailhub=wolke.etobi.de:587
 UseSTARTTLS=YES
 " > /etc/ssmtp/ssmtp.conf'
 sudo vi /etc/ssmtp/ssmtp.conf
+sudo bash -c "etckeeper commit 'configure ssmtp'"
 
 echo ==================================================================
 echo setup network interfaces
@@ -140,6 +144,7 @@ max-load-1 = 24
 watchdog-device = /dev/watchdog
 " >> /etc/watchdog.conf'
 sudo /etc/init.d/watchdog restart
+sudo bash -c "etckeeper commit 'configure watchdog'"
 
 echo ==================================================================
 echo install rpi monitor
@@ -158,5 +163,20 @@ echo cleanup pi home
 rm -fr Desktop Documents Downloads Music Pictures Public python_games Templates Videos
 
 echo ==================================================================
-echo reboot
+
+echo done
+echo
+echo etckeeper remote git url:
+sudo cat .git/config | grep "url ="
+
+echo
+echo root ssh public key:
+sudo cat ~root/.ssh/id_rsa.pub
+
+echo
+
+echo ==================================================================
+echo reboot?
+read
+
 sudo reboot
