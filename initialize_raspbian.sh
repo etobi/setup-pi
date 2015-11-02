@@ -20,7 +20,7 @@ read -p "new hostname: " NEW_HOSTNAME
 if (test ! "$NEW_HOSTNAME" = ""); then
 	sudo bash -c "echo $NEW_HOSTNAME > /etc/hostname"
 	sudo bash -c "sed -i \"s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\t$NEW_HOSTNAME/g\" /etc/hosts"
-}
+fi
 
 echo ==================================================================
 echo change password of user '`whoami'
