@@ -80,7 +80,7 @@ sudo apt-get -y install default-jre-headless
 
 echo ==================================================================
 echo Remove unneeded packages
-sudo apt-get -y remove --purge xserver-common gnome-icon-theme gnome-themes-standard x11-common x11-utils desktop-base desktop-file-utils hicolor-icon-theme raspberrypi-artwork omxplayer wolfram-engine supercollider penguinspuzzle minecraft-pi libreoffice
+sudo apt-get -y remove --purge xserver-common gnome-icon-theme gnome-themes-standard x11-common x11-utils x11-xkb-utils x11-xserver-utils desktop-base desktop-file-utils hicolor-icon-theme raspberrypi-artwork omxplayer wolfram-engine supercollider penguinspuzzle minecraft-pi libreoffice
 sudo apt-get -y autoremove
 
 echo ==================================================================
