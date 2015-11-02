@@ -23,7 +23,7 @@ if (test ! "$NEW_HOSTNAME" = ""); then
 fi
 
 echo ==================================================================
-echo change password of user '`whoami'
+echo change password of user 'pi'
 passwd
 
 echo ==================================================================
