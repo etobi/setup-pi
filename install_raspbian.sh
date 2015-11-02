@@ -71,7 +71,7 @@ do_choose_target() {
 	
 	RAWTARGET=`echo $TARGET | sed 's/disk/rdisk/'`
 	
-	if (test ! -b "$RAWTARGET"); then
+	if (test ! -e "$RAWTARGET"); then
 		echo Invalid device.
 		exit 1
 	fi
