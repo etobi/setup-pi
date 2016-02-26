@@ -146,6 +146,47 @@ watchdog-device = /dev/watchdog
 sudo /etc/init.d/watchdog restart
 sudo bash -c "etckeeper commit 'configure watchdog'"
 
+
+echo ==================================================================
+echo install collectd
+sudo apt-get -y install collectd
+sudo mv /etc/collectd/collectd.conf /etc/collectd/collectd.conf.orig
+sudo bash -c 'echo "
+Hostname \"TODO-pi\"
+FQDNLookup true
+LoadPlugin syslog
+<Plugin syslog>
+	LogLevel info
+</Plugin>
+LoadPlugin cpu
+LoadPlugin df
+LoadPlugin disk
+#LoadPlugin exec
+LoadPlugin interface
+LoadPlugin load
+LoadPlugin memory
+LoadPlugin processes
+LoadPlugin users
+LoadPlugin uptime
+#LoadPlugin write_graphite
+#<Plugin exec>
+#  Exec \"pi\" \"/usr/local/bin/collectd-temp.sh\" \"10-000802ddf73b\"
+#</Plugin>
+#<Plugin write_graphite>
+#	<Carbon>
+#		Host \"192.168.50.65\"
+#		Port \"2003\"
+#		Prefix \"collectd/\"
+#		StoreRates false
+#		AlwaysAppendDS false
+#		EscapeCharacter \"_\"
+#	</Carbon>
+#</Plugin>
+Include \"/etc/collectd/filters.conf\"
+Include \"/etc/collectd/thresholds.conf\"
+" > /etc/collectd/collectd.conf'
+sudo bash -c "etckeeper commit 'configure collectd'"
+
 echo ==================================================================
 echo install rpi monitor
 sudo apt-get -y install librrds-perl libhttp-daemon-perl libjson-perl libipc-sharelite-perl libhttp-date-perl libhttp-message-perl liblwp-mediatypes-perl librrd4 libencode-locale-perl libhtml-parser-perl liburi-perl libdbi1 libhtml-tagset-perl libfile-which-perl
