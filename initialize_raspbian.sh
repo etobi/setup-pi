@@ -156,7 +156,7 @@ Hostname \"TODO-pi\"
 FQDNLookup true
 LoadPlugin syslog
 <Plugin syslog>
-	LogLevel info
+  LogLevel info
 </Plugin>
 LoadPlugin cpu
 LoadPlugin df
@@ -173,18 +173,20 @@ LoadPlugin uptime
 #  Exec \"pi\" \"/usr/local/bin/collectd-temp.sh\" \"10-000802ddf73b\"
 #</Plugin>
 #<Plugin write_graphite>
-#	<Carbon>
-#		Host \"192.168.50.65\"
-#		Port \"2003\"
-#		Prefix \"collectd/\"
-#		StoreRates false
-#		AlwaysAppendDS false
-#		EscapeCharacter \"_\"
-#	</Carbon>
+#  <Carbon>
+#    Host \"192.168.50.65\"
+#    Port \"2003\"
+#    Prefix \"collectd/\"
+#    StoreRates false
+#    AlwaysAppendDS false
+#    EscapeCharacter \"_\"
+#  </Carbon>
 #</Plugin>
 Include \"/etc/collectd/filters.conf\"
 Include \"/etc/collectd/thresholds.conf\"
 " > /etc/collectd/collectd.conf'
+sudo vi /etc/collectd/collectd.conf
+sudo service collectd restart
 sudo bash -c "etckeeper commit 'configure collectd'"
 
 echo ==================================================================
