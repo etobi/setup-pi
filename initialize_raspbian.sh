@@ -71,6 +71,7 @@ echo setup etckeeper
 sudo apt-get -y install etckeeper
 sudo bash -c 'cd /etc && etckeeper init'
 sudo bash -c 'cd /etc && git remote add origin ssh://git@git.etobi.de:2222/etc/`echo $NEW_HOSTNAME`_etc.git'
+sudo bash -c "echo '0 1 * * * root cd /etc && git push > /dev/null 2>&1' > /etc/cron.d/etckeeper_push"
 
 echo ==================================================================
 echo install jre
