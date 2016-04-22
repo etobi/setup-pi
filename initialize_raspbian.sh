@@ -79,7 +79,7 @@ sudo apt-get -y install default-jre-headless
 
 echo ==================================================================
 echo install usbmount
-sudo apt-get -y install default-jre-headless
+sudo apt-get -y install usbmount
 
 echo ==================================================================
 echo Remove unneeded packages
