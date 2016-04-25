@@ -225,6 +225,7 @@ watchdog-device = /dev/watchdog
 sudo /etc/init.d/watchdog restart
 sudo bash -c "etckeeper commit 'configure watchdog'"
 
+echo 
 echo ==================================================================
 echo install collectd
 sudo apt-get -y install collectd
