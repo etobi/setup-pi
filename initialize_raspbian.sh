@@ -130,8 +130,8 @@ read -p "[ENTER]"
 
 sudo apt-get -y install etckeeper
 sudo bash -c 'cd /etc && etckeeper init'
-sudo bash -c 'cd /etc && git remote add origin ssh://git@git.etobi.de:2222/etc/`echo $NEW_HOSTNAME`_etc.git'
-sudo bash -c "echo '0 1 * * * root cd /etc && git push > /dev/null 2>&1' > /etc/cron.d/etckeeper_push"
+sudo bash -c 'cd /etc && git remote add origin ssh://git@git.etobi.de:2222/etcs/`echo $NEW_HOSTNAME`_etc.git'
+sudo bash -c "echo '0 1 * * * root cd /etc && git push --set-upstream origin master > /dev/null 2>&1' > /etc/cron.d/etckeeper_push"
 
 echo 
 echo ==================================================================
@@ -174,17 +174,28 @@ echo ==================================================================
 echo setup network interfaces
 read -p "[ENTER]"
 
+# 
+# sudo bash -c "echo '
+# 
+# #iface eth0 inet static
+# #  address 192.168.50.222
+# #  netmask 255.255.255.0
+# #  gateway 192.168.50.1
+# ' >> /etc/network/interfaces"
+# sudo vi /etc/network/interfaces
+# sudo bash -c "etckeeper commit 'configure network'"
+# 
+
 sudo bash -c "echo '
 
-#iface eth0 inet static
-#  address 192.168.50.222
-#  netmask 255.255.255.0
-#  gateway 192.168.50.1
-' >> /etc/network/interfaces"
-sudo vi /etc/network/interfaces
+# interface eth0
+# static ip_address=192.168.50.85
+# static routers=192.168.50.1
+# static domain_name_servers=192.168.50.1
+' >> /etc/dhcpcd.conf"
+sudo vi /etc/dhcpcd.conf
 sudo bash -c "etckeeper commit 'configure network'"
 
-# TODOOOO
 
 echo 
 echo ==================================================================
@@ -298,6 +309,7 @@ echo ==================================================================
 echo cleanup pi home
 read -p "[ENTER]"
 
+cd ~
 rm -fr Desktop Documents Downloads Music Pictures Public python_games Templates Videos
 
 echo 
@@ -317,6 +329,6 @@ echo
 
 echo ==================================================================
 echo reboot?
-read
+read -p "[ENTER]"
 
 sudo reboot
