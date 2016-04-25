@@ -1,21 +1,5 @@
 #!/bin/bash
 
-echo 
-echo ==================================================================
-echo 
-df -h | grep "/dev/root"
-echo
-read -n 1 -p "Expand file system? [Y/n] " YESNO
-echo
-
-if (test "$YESNO" = "" -o "$YESNO" = "y"  -o "$YESNO" = "Y"); then
-	sudo /usr/bin/raspi-config --expand-rootfs
-	echo ==================================================================
-	echo reboot
-	read -p "[ENTER]"
-	sudo reboot
-	exit
-fi
 
 echo 
 echo ==================================================================
@@ -27,6 +11,29 @@ sudo bash -c 'sed -i -e "s/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/" /etc/locale.g
 sudo bash -c 'echo "LANG=\"de_DE.UTF-8\"" > /etc/default/locale'
 sudo bash -c 'dpkg-reconfigure --frontend=noninteractive locales'
 sudo bash -c 'update-locale LANG=de_DE.UTF-8'
+
+echo
+
+BLOCKS=`df | grep "/dev/root" | awk '{print $2}'`
+if (test "$BLOCKS" -lt 3800000); then
+
+	echo ==================================================================
+	echo 
+	df -h | grep "/dev/root"
+
+	echo
+	read -n 1 -p "Expand file system? [Y/n] " YESNO
+	echo
+
+	if (test "$YESNO" = "" -o "$YESNO" = "y"  -o "$YESNO" = "Y"); then
+		sudo /usr/bin/raspi-config --expand-rootfs
+		echo ==================================================================
+		echo reboot
+		read -p "[ENTER]"
+		sudo reboot
+		exit
+	fi
+fi
 
 echo 
 echo ==================================================================
@@ -94,8 +101,8 @@ read -p "[ENTER]"
 mkdir ~pi/.ssh
 wget http://etobi.de/publickey.txt -O - > ~pi/.ssh/authorized_keys
 
-bash -c 'cat /dev/zero | ssh-keygen -q -N ""'
-sudo bash -c 'cat /dev/zero | ssh-keygen -q -N ""'
+bash -c 'ssh-keygen -q -N ""'
+sudo bash -c 'ssh-keygen -q -N ""'
 
 echo 
 echo ==================================================================
