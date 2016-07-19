@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# TODO parameter for hostname
+# TODO parameter to skip ENTERs
+# TODO setup wifi
+# TODO watchdog prüfen
+# TODO JRE prüfen
+# TODO install screen
+# TODO install nodejs
+
+# wget http://nodejs.org/dist/latest-v6.x/node-v6.3.0-linux-armv6l.tar.gz
+# tar -xvf node-v6.3.0-linux-armv6l.tar.gz 
+# cd node-v6.3.0-linux-armv6l/
+# sudo cp -R * /usr/local/
+
 
 echo 
 echo ==================================================================
