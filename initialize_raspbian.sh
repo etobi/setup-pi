@@ -1,9 +1,34 @@
 #!/bin/bash
 
+YES=0
+help=0
+hostname=""
+
+while [[ "$#" > 0 ]]; do
+	case $1 in
+    -h|--host)
+		hostname="$2"
+		;;
+    -y|--yes)
+		YES=1
+		;;
+    help|--help)
+		help=1
+		;;
+  esac;
+  shift; 
+done
+
+if (test "$help" -eq 1); then
+	echo "-h <name> | --host <name> : set hostname"
+	echo "-y | --yes                : do not require enter/confirmation for each step"
+	exit;
+fi
+
 echo 
 echo ==================================================================
 echo "configure locale (en_US.UTF-8, de_DE.UTF-8)"
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo bash -c 'sed -i -e "s/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /etc/locale.gen'
 sudo bash -c 'sed -i -e "s/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/" /etc/locale.gen'
@@ -28,7 +53,7 @@ if (test "$BLOCKS" -lt 3800000); then
 		sudo /usr/bin/raspi-config --expand-rootfs
 		echo ==================================================================
 		echo reboot
-		read -p "[ENTER]"
+		if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 		sudo reboot
 		exit
 	fi
@@ -37,7 +62,7 @@ fi
 echo 
 echo ==================================================================
 echo configure timezone
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo bash -c 'echo "Europe/Berlin" > /etc/timezone'
 sudo bash -c 'dpkg-reconfigure -f noninteractive tzdata'
@@ -45,28 +70,38 @@ sudo bash -c 'dpkg-reconfigure -f noninteractive tzdata'
 echo 
 echo ==================================================================
 echo configure hostname
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \t\n\r"`
-read -p "new hostname: " NEW_HOSTNAME
+if (test ! "$hostname" = "")); then
+	NEW_HOSTNAME="$hostname"
+else
+	read -p "new hostname: " NEW_HOSTNAME
+	if (test "$NEW_HOSTNAME" = ""); then
+		NEW_HOSTNAME=$CURRENT_HOSTNAME
+	fi	
+fi
+
+echo new hostname: $NEW_HOSTNAME
+
 if (test ! "$NEW_HOSTNAME" = ""); then
 	sudo bash -c "echo $NEW_HOSTNAME > /etc/hostname"
 	sudo bash -c "sed -i 's/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\t$NEW_HOSTNAME/g' /etc/hosts"
-else
-	NEW_HOSTNAME=$CURRENT_HOSTNAME
 fi
+
+
 
 echo 
 echo ==================================================================
 echo change password of user 'pi'
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 passwd
 
 echo 
 echo ==================================================================
 echo enable tmp ram disk
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 # sudo bash -c 'echo -e "\n\n# mount /tmp ram disk\nRAMTMP=yes" >> /etc/default/tmpfs'
 sudo bash -c 'echo -e "\ntmpfs /tmp tmpfs nodev,nosuid,relatime,size=100M 0 0\n" >> /etc/fstab'
@@ -74,7 +109,7 @@ sudo bash -c 'echo -e "\ntmpfs /tmp tmpfs nodev,nosuid,relatime,size=100M 0 0\n"
 echo 
 echo ==================================================================
 echo disable swap
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo chmod -x /etc/init.d/dphys-swapfile
 sudo swapoff -a
@@ -83,21 +118,36 @@ sudo rm /var/swap
 echo 
 echo ==================================================================
 echo set vim as default editor
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo update-alternatives --set editor /usr/bin/vim.tiny
 
 echo 
 echo ==================================================================
-echo disable camera led
-read -p "[ENTER]"
+echo /config.txt
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo bash -c 'echo "disable_camera_led=1" >> /boot/config.txt '
+sudo bash -c 'echo "# dtparam=i2c_arm=on" >> /boot/config '
+sudo bash -c 'echo "# dtparam=spi=on" >> /boot/config '
+sudo bash -c 'echo "# dtoverlay=w1-gpio,gpiopin=4,pullup=on" >> /boot/config '
+sudo bash -c 'echo "# dtparam=audio=on" >> /boot/config '
+sudo bash -c 'echo "# disable_camera_led=1" >> /boot/config '
+sudo bash -c 'echo "# dtoverlay=w1-gpio" >> /boot/config '
+
+
+echo 
+echo ==================================================================
+echo rc.local/config.txt
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
+
+sudo bash -c 'echo "# /usr/bin/tvservice -o" >> /etc/rc.local '
+
 
 echo 
 echo ==================================================================
 echo setup ssh keys
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 mkdir ~pi/.ssh
 wget http://etobi.de/publickey.txt -O - > ~pi/.ssh/authorized_keys
@@ -108,7 +158,7 @@ sudo bash -c 'ssh-keygen -q -N ""'
 echo 
 echo ==================================================================
 echo setup git author
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 git config --global push.default simple
 git config --global user.email mail@etobi.de
@@ -120,14 +170,14 @@ sudo bash -c 'git config --global push.default simple'
 echo 
 echo ==================================================================
 echo update apt
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo apt-get update
 
 echo 
 echo ==================================================================
 echo setup etckeeper
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo apt-get -y install etckeeper
 sudo bash -c 'cd /etc && etckeeper init'
@@ -137,28 +187,28 @@ sudo bash -c "echo '0 1 * * * root cd /etc && git push --set-upstream origin mas
 echo 
 echo ==================================================================
 echo install jre
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo apt-get -y install default-jre-headless
 
 echo 
 echo ==================================================================
 echo install usbmount
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo apt-get -y install usbmount
 
 echo 
 echo ==================================================================
 echo install screen
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo apt-get -y install screen
 
 echo 
 echo ==================================================================
 echo install nodejs 6.x
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 NODEVERSION=`wget --no-verbose http://nodejs.org/dist/index.tab -O - | grep "^v6." | head -1 | awk '{print $1}'`
 cd /tmpf
@@ -171,7 +221,7 @@ cd
 echo 	
 echo ==================================================================
 echo Remove unneeded packages
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo apt-get -y remove --purge xserver-common gnome-icon-theme gnome-themes-standard x11-common x11-utils x11-xkb-utils x11-xserver-utils desktop-base desktop-file-utils hicolor-icon-theme raspberrypi-artwork omxplayer wolfram-engine supercollider penguinspuzzle minecraft-pi libreoffice
 sudo apt-get -y autoremove
@@ -179,21 +229,21 @@ sudo apt-get -y autoremove
 echo 
 echo ==================================================================
 echo apt-get upgrade
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo apt-get -y upgrade
 
 echo 
 echo ==================================================================
 echo rpi-update
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo rpi-update
 
 echo 
 echo ==================================================================
 echo setup network interfaces
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 # 
 # sudo bash -c "echo '
@@ -221,11 +271,11 @@ sudo bash -c "etckeeper commit 'configure network'"
 echo 
 echo ==================================================================
 echo setup ssmtp
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo apt-get -y install ssmtp
 sudo bash -c 'echo "
-root=mail_root-pi@etobi.de
+root=mail_pi@etobi.de
 hostname=etobi.de
 AuthUser=xxxxxx
 AuthPass=XXXXXX
@@ -239,7 +289,7 @@ sudo bash -c "etckeeper commit 'configure ssmtp'"
 echo 
 echo ==================================================================
 echo setup nagios
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo apt-get -y install nagios-plugins
 echo "
@@ -250,7 +300,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC8mxQZFs1MfSE0RMs66lp13D9QUZdlnOszM3QBM5hY
 echo 
 echo ==================================================================
 echo install watchdog
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo modprobe bcm2708_wdog
 sudo bash -c 'echo "
@@ -310,7 +360,7 @@ sudo bash -c "etckeeper commit 'configure collectd'"
 echo 
 echo ==================================================================
 echo install rpi monitor
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo apt-get -y install librrds-perl libhttp-daemon-perl libjson-perl libipc-sharelite-perl libhttp-date-perl libhttp-message-perl liblwp-mediatypes-perl librrd4 libencode-locale-perl libhtml-parser-perl liburi-perl libdbi1 libhtml-tagset-perl libfile-which-perl
 wget https://github.com/XavierBerger/RPi-Monitor-deb/blob/master/packages/rpimonitor_2.10-1_all.deb?raw=true -O rpimonitor.deb
@@ -321,14 +371,14 @@ sudo /usr/share/rpimonitor/scripts/updatePackagesStatus.pl
 echo 
 echo ==================================================================
 echo finish raspi-config
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sed '/disable_raspi_config_at_boot()/,/^$/!d' /usr/bin/raspi-config | sed -e '1i ASK_TO_REBOOT=0;' -e '$a disable_raspi_config_at_boot' | sudo bash
 
 echo 
 echo ==================================================================
 echo cleanup pi home
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 cd ~
 rm -fr Desktop Documents Downloads Music Pictures Public python_games Templates Videos
@@ -350,6 +400,6 @@ echo
 
 echo ==================================================================
 echo reboot?
-read -p "[ENTER]"
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo reboot
