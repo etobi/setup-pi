@@ -91,6 +91,11 @@ do_dump() {
 	
 	echo "dd..."
 	sudo bash -c "pv -tpreb $SOURCE | dd bs=1m of=$RAWTARGET"
+
+	echo "enable ssh..."
+	touch /Volumes/boot/ssh
+
+	echo "eject..."
 	
 	diskutil eject $TARGET
 }
