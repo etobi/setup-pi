@@ -73,7 +73,7 @@ echo configure hostname
 if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \t\n\r"`
-if (test ! "$hostname" = "")); then
+if (test ! "$hostname" = ""); then
 	NEW_HOSTNAME="$hostname"
 else
 	read -p "new hostname: " NEW_HOSTNAME
