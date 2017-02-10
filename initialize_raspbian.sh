@@ -223,7 +223,7 @@ echo ==================================================================
 echo Remove unneeded packages
 if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
-sudo apt-get -y remove --purge xserver-common gnome-icon-theme gnome-themes-standard x11-common x11-utils x11-xkb-utils x11-xserver-utils desktop-base desktop-file-utils hicolor-icon-theme raspberrypi-artwork omxplayer wolfram-engine supercollider penguinspuzzle minecraft-pi libreoffice
+sudo apt-get -y remove --purge xserver-common gnome-icon-theme gnome-themes-standard x11-common x11-utils x11-xkb-utils x11-xserver-utils desktop-base desktop-file-utils hicolor-icon-theme raspberrypi-artwork omxplayer wolfram-engine supercollider penguinspuzzle minecraft-pi libreoffice libice6 libxtst6 openjdk-7-jre-headless
 sudo apt-get -y autoremove
 
 echo 
@@ -239,6 +239,15 @@ echo rpi-update
 if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
 sudo rpi-update
+
+echo 
+echo ==================================================================
+echo configure sshd
+if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
+
+sudo bash -c "echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config"
+sudo bash -c "echo '#PasswordAuthentication no' >> /etc/ssh/sshd_config"
+
 
 echo 
 echo ==================================================================
@@ -302,15 +311,16 @@ echo ==================================================================
 echo install watchdog
 if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
+sudo apt-get -y install watchdog
 sudo modprobe bcm2708_wdog
 sudo bash -c 'echo "
 bcm2708_wdog
 " >> /etc/modules'
-sudo apt-get -y install watchdog
 sudo bash -c 'echo "
 max-load-1 = 24
 watchdog-device = /dev/watchdog
 " >> /etc/watchdog.conf'
+sudo update-rc.d watchdog defaults
 sudo /etc/init.d/watchdog restart
 sudo bash -c "etckeeper commit 'configure watchdog'"
 
@@ -350,6 +360,7 @@ LoadPlugin uptime
 #    EscapeCharacter \"_\"
 #  </Carbon>
 #</Plugin>
+# TODO configure mqtt
 Include \"/etc/collectd/filters.conf\"
 Include \"/etc/collectd/thresholds.conf\"
 " > /etc/collectd/collectd.conf'
