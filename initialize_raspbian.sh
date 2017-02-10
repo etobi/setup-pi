@@ -1,19 +1,5 @@
 #!/bin/bash
 
-# TODO parameter for hostname
-# TODO parameter to skip ENTERs
-# TODO setup wifi
-# TODO watchdog prüfen
-# TODO JRE prüfen
-# TODO install screen
-# TODO install nodejs
-
-# wget http://nodejs.org/dist/latest-v6.x/node-v6.3.0-linux-armv6l.tar.gz
-# tar -xvf node-v6.3.0-linux-armv6l.tar.gz 
-# cd node-v6.3.0-linux-armv6l/
-# sudo cp -R * /usr/local/
-
-
 echo 
 echo ==================================================================
 echo "configure locale (en_US.UTF-8, de_DE.UTF-8)"
@@ -66,6 +52,8 @@ read -p "new hostname: " NEW_HOSTNAME
 if (test ! "$NEW_HOSTNAME" = ""); then
 	sudo bash -c "echo $NEW_HOSTNAME > /etc/hostname"
 	sudo bash -c "sed -i 's/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\t$NEW_HOSTNAME/g' /etc/hosts"
+else
+	NEW_HOSTNAME=$CURRENT_HOSTNAME
 fi
 
 echo 
@@ -161,6 +149,26 @@ read -p "[ENTER]"
 sudo apt-get -y install usbmount
 
 echo 
+echo ==================================================================
+echo install screen
+read -p "[ENTER]"
+
+sudo apt-get -y install screen
+
+echo 
+echo ==================================================================
+echo install nodejs 6.x
+read -p "[ENTER]"
+
+NODEVERSION=`wget --no-verbose http://nodejs.org/dist/index.tab -O - | grep "^v6." | head -1 | awk '{print $1}'`
+cd /tmpf
+wget http://nodejs.org/dist/latest-v6.x/node-${NODEVERSION}-linux-armv6l.tar.gz
+tar -xvf node-*.tar.gz 
+cd node-*/
+sudo cp -R * /usr/local/
+cd
+
+echo 	
 echo ==================================================================
 echo Remove unneeded packages
 read -p "[ENTER]"
