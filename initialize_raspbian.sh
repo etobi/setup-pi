@@ -222,9 +222,10 @@ echo ==================================================================
 echo Remove unneeded packages
 if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
-sudo apt-get -y remove --purge xserver-common gnome-icon-theme gnome-themes-standard x11-common x11-utils x11-xkb-utils x11-xserver-utils desktop-base desktop-file-utils hicolor-icon-theme raspberrypi-artwork omxplayer wolfram-engine supercollider penguinspuzzle minecraft-pi libreoffice libice6 libxtst6 openjdk-7-jre-headless
+sudo apt-get -y remove --purge xserver-common gnome-icon-theme gnome-themes-standard desktop-base desktop-file-utils hicolor-icon-theme raspberrypi-artwork omxplayer wolfram-engine supercollider penguinspuzzle minecraft-pi sonic-pi libreoffice*
+sudo apt-get clean
 sudo apt-get -y autoremove
-
+ 
 echo 
 echo ==================================================================
 echo apt-get upgrade
@@ -310,17 +311,24 @@ echo ==================================================================
 echo install watchdog
 if (test "$YES" -eq 0); then read -p "[ENTER]"; fi
 
+sudo bash -c 'echo "dtparam=watchdog=on" >> /boot/config.txt'
 sudo apt-get -y install watchdog
-sudo modprobe bcm2708_wdog
+sudo modprobe bcm2835_wdt
 sudo bash -c 'echo "
-bcm2708_wdog
+bcm2835_wdt
 " >> /etc/modules'
 sudo bash -c 'echo "
 max-load-1 = 24
+min-memory = 1
 watchdog-device = /dev/watchdog
+watchdog-timeout = 15
 " >> /etc/watchdog.conf'
-sudo update-rc.d watchdog defaults
-sudo /etc/init.d/watchdog restart
+sudo bash -c 'echo "
+[Install]
+WantedBy=multi-user.target
+" >> /lib/systemd/system/watchdog.service'
+sudo systemctl enable watchdog
+sudo systemctl start watchdog
 sudo bash -c "etckeeper commit 'configure watchdog'"
 
 echo 
@@ -400,7 +408,7 @@ echo
 echo done
 echo
 echo etckeeper remote git url:
-sudo cat .git/config | grep "url ="
+sudo cat /etc/.git/config | grep "url ="
 
 echo
 echo root ssh public key:
